@@ -117,7 +117,13 @@ export default function Portfolio() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       {/* Hero Section */}
       <section className="relative overflow-hidden px-4 py-20 sm:px-6 lg:px-8">
-        <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]" />
+        <div className="absolute inset-0">
+          <img
+            src="/oracle69-banner.jpg"
+            alt="Oracle69 Banner"
+            className="w-full h-full object-cover opacity-30"
+          />
+        </div>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -132,7 +138,7 @@ export default function Portfolio() {
             className="mb-8"
           >
             <Avatar className="mx-auto h-32 w-32 border-4 border-white/20">
-              <AvatarImage src="/profile.png" alt="Prince Adewumi Adewale" />
+              <AvatarImage src="/oracle69-user.jpg" alt="Prince Adewumi Adewale" />
               <AvatarFallback className="text-2xl">AA</AvatarFallback>
             </Avatar>
           </motion.div>
