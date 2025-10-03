@@ -56,15 +56,21 @@ export default function Portfolio() {
   const [selectedAudience, setSelectedAudience] = useState<keyof typeof messageFlows | null>(null)
   const [showAudienceSelector, setShowAudienceSelector] = useState(false)
 
-  // ✅ Fetch GitHub repositories from secure API route
+  // ✅ Secure server-side fetch (calls your /api/repos route)
   useEffect(() => {
     const fetchRepos = async () => {
       try {
         const res = await fetch("/api/repos")
         const data = await res.json()
-        if (!data.error) setRepos(data)
+        if (Array.isArray(data)) {
+          setRepos(data)
+        } else {
+          console.error("API response not array:", data)
+          setRepos([])
+        }
       } catch (err) {
         console.error("Error fetching repos:", err)
+        setRepos([])
       } finally {
         setLoading(false)
       }
@@ -183,7 +189,7 @@ export default function Portfolio() {
               variant="outline"
               className="border-white/20 text-white hover:bg-white/10"
             >
-              <a href="mailto:oracle69digitalmarketing@gmail.com">
+              <a href="mailto:adewaleadewumi78@gmail.com">
                 <Mail className="mr-2 h-4 w-4" />
                 Contact
               </a>
@@ -289,9 +295,111 @@ export default function Portfolio() {
         </div>
       </section>
 
-      {/* Audience Selector + Chat (unchanged logic) */}
-      {/* ... keep your chat + footer exactly as before ... */}
+      {/* Audience Selector Modal */}
+      <AnimatePresence>
+        {showAudienceSelector && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setShowAudienceSelector(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-slate-800 rounded-lg p-6 max-w-md w-full border border-white/10"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-xl font-bold text-white mb-4">I'm here as a...</h3>
+              <div className="space-y-3">
+                <Button
+                  onClick={() => startChat("employer")}
+                  className="w-full justify-start bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  <Briefcase className="mr-3 h-5 w-5" />
+                  Potential Employer
+                </Button>
+                <Button
+                  onClick={() => startChat("investor")}
+                  className="w-full justify-start bg-green-600 hover:bg-green-700 text-white"
+                >
+                  <TrendingUp className="mr-3 h-5 w-5" />
+                  Investor
+                </Button>
+                <Button
+                  onClick={() => startChat("general")}
+                  className="w-full justify-start bg-purple-600 hover:bg-purple-700 text-white"
+                >
+                  <Code className="mr-3 h-5 w-5" />
+                  Fellow Developer
+                </Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
+      {/* Chat Interface */}
+      <AnimatePresence>
+        {showChat && (
+          <motion.div
+            initial={{ opacity: 0, x: 300 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 300 }}
+            className="fixed bottom-4 right-4 w-80 h-96 bg-slate-800 rounded-lg border border-white/10 shadow-2xl z-50 flex flex-col"
+          >
+            <div className="flex items-center justify-between p-4 border-b border-white/10">
+              <h3 className="font-semibold text-white">Chat with Me</h3>
+              <Button
+                onClick={closeChat}
+                size="sm"
+                variant="ghost"
+                className="h-8 w-8 p-0 text-gray-400 hover:text-white"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+              <AnimatePresence>
+                {chatMessages.map((message) => (
+                  <motion.div
+                    key={message.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className={`flex ${message.isBot ? "justify-start" : "justify-end"}`}
+                  >
+                    <div
+                      className={`max-w-[80%] p-3 rounded-lg text-sm ${
+                        message.isBot ? "bg-purple-600 text-white" : "bg-gray-600 text-white"
+                      }`}
+                    >
+                      {message.text}
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+
+              {showChat && selectedAudience && currentMessageIndex < messageFlows[selectedAudience].length && (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-start">
+                  <div className="bg-purple-600/50 p-3 rounded-lg text-sm text-white">
+                    <motion.div
+                      animate={{ opacity: [0.5, 1, 0.5] }}
+                      transition={{ duration: 1.5, repeat: Number.POSITIVE_INFINITY }}
+                    >
+                      Typing...
+                    </motion.div>
+                  </div>
+                </motion.div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Footer */}
       <footer className="border-t border-white/10 px-4 py-8 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-6xl">
           <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
@@ -303,12 +411,12 @@ export default function Portfolio() {
                 </a>
               </Button>
               <Button asChild size="sm" variant="ghost" className="text-gray-400 hover:text-white">
-                <a href="https://www.linkedin.com/in/adewumiadewale" target="_blank" rel="noopener noreferrer">
+                <a href="https://www.linkedin.com/in/oracle69digitalmarketing" target="_blank" rel="noopener noreferrer">
                   <Linkedin className="h-4 w-4" />
                 </a>
               </Button>
               <Button asChild size="sm" variant="ghost" className="text-gray-400 hover:text-white">
-                <a href="mailto:oracle69digitalmarketing@gmail.com">
+                <a href="mailto:adewaleadewumi78@gmail.com">
                   <Mail className="h-4 w-4" />
                 </a>
               </Button>
